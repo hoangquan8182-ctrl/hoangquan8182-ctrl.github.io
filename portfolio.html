@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio — Nguyen Van An</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #0d0d0d;
+      --cream: #f5f0e8;
+      --gold: #c9a84c;
+      --rust: #c0532a;
+      --muted: #6b6560;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--ink);
+      color: var(--cream);
+      font-family: 'DM Mono', monospace;
+      cursor: none;
+      overflow-x: hidden;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      width: 10px; height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(201,168,76,0.5);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.35s ease, width 0.3s, height 0.3s;
+    }
+    body:has(a:hover) .cursor-ring,
+    body:has(button:hover) .cursor-ring {
+      width: 60px; height: 60px;
+    }
+
+    /* Noise overlay */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 9997;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--ink); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    /* Fonts */
+    .font-display { font-family: 'Cormorant Garamond', serif; }
+    .font-sans { font-family: 'Syne', sans-serif; }
+
+    /* Fade-in on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(.23,1,.32,1), transform 0.8s cubic-bezier(.23,1,.32,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Gold underline hover */
+    .hover-line {
+      position: relative;
+      display: inline-block;
+    }
+    .hover-line::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -2px;
+      width: 0; height: 1px;
+      background: var(--gold);
+      transition: width 0.4s cubic-bezier(.23,1,.32,1);
+    }
+    .hover-line:hover::after { width: 100%; }
+
+    /* Section divider line */
+    .divider {
+      width: 60px; height: 1px;
+      background: var(--gold);
+      display: inline-block;
+    }
+
+    /* Project card */
+    .project-card {
+      border: 1px solid rgba(245,240,232,0.08);
+      transition: border-color 0.4s, transform 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.04) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .project-card:hover {
+      border-color: rgba(201,168,76,0.3);
+      transform: translateY(-4px);
+    }
+    .project-card:hover::before { opacity: 1; }
+
+    /* Skill bar */
+    .skill-bar-fill {
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--rust));
+      width: 0;
+      transition: width 1.2s cubic-bezier(.23,1,.32,1);
+    }
+
+    /* Hero text shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .shimmer-text {
+      background: linear-gradient(90deg, var(--cream) 30%, var(--gold) 50%, var(--cream) 70%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 5s linear infinite;
+    }
+
+    /* Floating label */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .float-anim { animation: float 4s ease-in-out infinite; }
+
+    /* Nav link */
+    .nav-link {
+      letter-spacing: 0.15em;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      transition: color 0.3s;
+    }
+    .nav-link:hover { color: var(--gold); }
+
+    /* Tag pill */
+    .tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--gold);
+      display: inline-block;
+    }
+
+    /* Diagonal stripe accent */
+    .stripe-bg {
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(201,168,76,0.03) 8px,
+        rgba(201,168,76,0.03) 9px
+      );
+    }
+
+    /* Contact input */
+    .contact-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(245,240,232,0.15);
+      color: var(--cream);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      padding: 12px 0;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .contact-input:focus { border-bottom-color: var(--gold); }
+    .contact-input::placeholder { color: rgba(245,240,232,0.3); }
+
+    /* Stagger delays */
+    .delay-100 { transition-delay: 0.1s; }
+    .delay-200 { transition-delay: 0.2s; }
+    .delay-300 { transition-delay: 0.3s; }
+    .delay-400 { transition-delay: 0.4s; }
+    .delay-500 { transition-delay: 0.5s; }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-6" style="background: linear-gradient(to bottom, rgba(13,13,13,0.9) 0%, transparent 100%); backdrop-filter: blur(2px);">
+    <a href="#" class="font-display text-lg" style="color: var(--gold); letter-spacing: 0.05em;">VA.</a>
+    <div class="hidden md:flex items-center gap-10">
+      <a href="#about" class="nav-link hover-line">Về tôi</a>
+      <a href="#work" class="nav-link hover-line">Dự án</a>
+      <a href="#skills" class="nav-link hover-line">Kỹ năng</a>
+      <a href="#contact" class="nav-link hover-line">Liên hệ</a>
+    </div>
+    <div class="font-display italic" style="font-size:0.8rem; color: rgba(245,240,232,0.3);">— 2024</div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex flex-col justify-end pb-20 px-8 md:px-16 pt-32 overflow-hidden">
+
+    <!-- Background grid lines -->
+    <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(201,168,76,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.5) 1px, transparent 1px); background-size: 80px 80px;"></div>
+
+    <!-- Large decorative number -->
+    <div class="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 font-display select-none" style="font-size: clamp(160px, 25vw, 360px); color: rgba(245,240,232,0.025); line-height: 1; font-weight: 300;">01</div>
+
+    <!-- Status badge -->
+    <div class="float-anim mb-8 reveal" style="display: inline-flex; align-items: center; gap: 8px; width: fit-content;">
+      <span style="width:6px; height:6px; border-radius:50%; background:var(--gold); display:inline-block; box-shadow: 0 0 8px var(--gold);"></span>
+      <span class="tag">Sẵn sàng nhận dự án mới</span>
+    </div>
+
+    <!-- Hero headline -->
+    <div class="relative z-10 max-w-4xl">
+      <h1 class="font-display shimmer-text reveal delay-100" style="font-size: clamp(56px, 9vw, 128px); line-height: 1.0; font-weight: 300; letter-spacing: -0.02em;">
+        Nguyễn<br/>
+        <em style="-webkit-text-fill-color: transparent; background: none; color: transparent; text-shadow: none; -webkit-text-stroke: 1px rgba(245,240,232,0.35); font-style: italic;">Văn An</em>
+      </h1>
+
+      <div class="flex items-center gap-6 mt-8 reveal delay-200">
+        <div class="divider"></div>
+        <p class="font-sans" style="font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(245,240,232,0.5);">Full-Stack Developer &amp; UI/UX Designer</p>
+      </div>
+
+      <p class="font-display mt-6 reveal delay-300" style="font-size: clamp(18px, 2.5vw, 26px); color: rgba(245,240,232,0.55); max-width: 560px; line-height: 1.6; font-weight: 300;">
+        Tôi xây dựng những sản phẩm kỹ thuật số<br/>
+        <em>đẹp, nhanh, và đáng nhớ.</em>
+      </p>
+    </div>
+
+    <!-- Bottom row -->
+    <div class="flex flex-col md:flex-row items-start md:items-end justify-between mt-20 gap-8 reveal delay-400">
+      <div class="flex items-center gap-8">
+        <a href="#work" class="font-sans flex items-center gap-3 group" style="font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cream);">
+          <span>Xem dự án</span>
+          <span class="group-hover:translate-x-2 transition-transform" style="color: var(--gold);">→</span>
+        </a>
+        <a href="#contact" class="font-sans" style="font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(245,240,232,0.4);" class="hover-line">Liên hệ</a>
+      </div>
+
+      <div class="flex items-center gap-6" style="color: rgba(245,240,232,0.3); font-size: 0.65rem; letter-spacing: 0.1em;">
+        <span>HCM, Việt Nam</span>
+        <span style="color: var(--gold);">·</span>
+        <span>+7 năm kinh nghiệm</span>
+      </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 right-8 md:right-16 flex flex-col items-center gap-2 reveal delay-500">
+      <span class="font-display italic" style="font-size: 0.7rem; color: rgba(245,240,232,0.3); writing-mode: vertical-rl; letter-spacing: 0.2em;">scroll</span>
+      <div style="width:1px; height:48px; background: linear-gradient(to bottom, rgba(201,168,76,0.6), transparent);"></div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="relative py-32 px-8 md:px-16 stripe-bg">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+
+      <!-- Left: Image placeholder -->
+      <div class="reveal relative">
+        <div class="relative" style="aspect-ratio: 3/4; max-width: 400px;">
+          <!-- Decorative frame -->
+          <div class="absolute" style="inset: -12px; border: 1px solid rgba(201,168,76,0.2);"></div>
+          <div class="absolute" style="inset: -24px; border: 1px solid rgba(201,168,76,0.08);"></div>
+
+          <!-- Photo placeholder with gradient -->
+          <div class="w-full h-full relative overflow-hidden" style="background: linear-gradient(135deg, #1a1614 0%, #241e1b 100%);">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="font-display text-9xl" style="color: rgba(201,168,76,0.1); font-weight: 300;">VA</span>
+            </div>
+            <!-- Colored overlay shapes -->
+            <div class="absolute bottom-0 left-0 right-0 h-1/2" style="background: linear-gradient(to top, rgba(192,83,42,0.15), transparent);"></div>
+            <div class="absolute top-0 right-0 w-1/2 h-1/2" style="background: radial-gradient(circle at 80% 20%, rgba(201,168,76,0.1), transparent 70%);"></div>
+          </div>
+
+          <!-- Label -->
+          <div class="absolute -bottom-5 -right-5 px-4 py-2" style="background: var(--gold);">
+            <span class="font-sans text-xs font-bold" style="color: var(--ink); letter-spacing: 0.1em;">2024</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Text -->
+      <div>
+        <div class="flex items-center gap-4 mb-10 reveal">
+          <div class="divider"></div>
+          <span class="font-sans" style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);">Về tôi</span>
+        </div>
+
+        <h2 class="font-display mb-6 reveal delay-100" style="font-size: clamp(36px, 5vw, 60px); font-weight: 300; line-height: 1.1;">
+          Tôi là người<br/>
+          <em>tạo nên sự khác biệt</em>
+        </h2>
+
+        <p class="mb-6 reveal delay-200" style="font-size: 0.85rem; line-height: 1.9; color: rgba(245,240,232,0.6);">
+          Với hơn 7 năm kinh nghiệm trong lĩnh vực phát triển web và thiết kế UX/UI, tôi đã làm việc với các startup và doanh nghiệp lớn tại Việt Nam và quốc tế. Mỗi dự án là một câu chuyện cần được kể theo cách riêng của nó.
+        </p>
+
+        <p class="mb-10 reveal delay-300" style="font-size: 0.85rem; line-height: 1.9; color: rgba(245,240,232,0.6);">
+          Tôi tin rằng giao diện tốt không chỉ đẹp mà còn phải <em class="font-display" style="font-size: 1.05rem; color: var(--cream); -webkit-text-fill-color: unset;">cảm xúc và hiệu quả.</em>
+        </p>
+
+        <div class="grid grid-cols-3 gap-6 reveal delay-400">
+          <div>
+            <div class="font-display mb-1" style="font-size: 2.5rem; color: var(--gold); font-weight: 300;">47+</div>
+            <div style="font-size: 0.65rem; color: rgba(245,240,232,0.4); letter-spacing: 0.1em; text-transform: uppercase;">Dự án</div>
+          </div>
+          <div>
+            <div class="font-display mb-1" style="font-size: 2.5rem; color: var(--gold); font-weight: 300;">7+</div>
+            <div style="font-size: 0.65rem; color: rgba(245,240,232,0.4); letter-spacing: 0.1em; text-transform: uppercase;">Năm KN</div>
+          </div>
+          <div>
+            <div class="font-display mb-1" style="font-size: 2.5rem; color: var(--gold); font-weight: 300;">23+</div>
+            <div style="font-size: 0.65rem; color: rgba(245,240,232,0.4); letter-spacing: 0.1em; text-transform: uppercase;">Khách hàng</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="work" class="py-32 px-8 md:px-16">
+    <div class="max-w-6xl mx-auto">
+
+      <div class="flex items-center gap-4 mb-4 reveal">
+        <div class="divider"></div>
+        <span class="font-sans" style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);">Dự án nổi bật</span>
+      </div>
+      <h2 class="font-display mb-16 reveal delay-100" style="font-size: clamp(36px, 5vw, 64px); font-weight: 300; line-height: 1.1;">
+        Công việc đã<br/><em>thực hiện</em>
+      </h2>
+
+      <!-- Projects grid -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Project 1 (featured) -->
+        <div class="project-card lg:col-span-2 p-8 reveal">
+          <div class="flex items-start justify-between mb-6">
+            <span class="tag">E-commerce</span>
+            <span style="font-size: 0.65rem; color: rgba(245,240,232,0.3);">2024</span>
+          </div>
+          <div class="mb-6" style="height: 180px; background: linear-gradient(135deg, #1c1814 0%, #2a2018 100%); position: relative; overflow: hidden;">
+            <div style="position:absolute; inset:0; background: radial-gradient(ellipse at 30% 50%, rgba(192,83,42,0.2), transparent 60%), radial-gradient(ellipse at 80% 30%, rgba(201,168,76,0.15), transparent 60%);"></div>
+            <div class="absolute bottom-4 left-4 font-display" style="font-size: 3rem; color: rgba(245,240,232,0.08); font-weight: 300;">SHOP</div>
+          </div>
+          <h3 class="font-display mb-2" style="font-size: 1.8rem; font-weight: 300;">LuxeMarket Platform</h3>
+          <p style="font-size: 0.8rem; color: rgba(245,240,232,0.5); line-height: 1.7; margin-bottom: 16px;">Nền tảng thương mại điện tử cao cấp với trải nghiệm mua sắm cá nhân hóa, xử lý 10,000+ giao dịch/ngày.</p>
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2">
+              <span class="tag">React</span>
+              <span class="tag">Node.js</span>
+              <span class="tag">PostgreSQL</span>
+            </div>
+            <a href="#" style="color: var(--gold); font-size: 0.75rem;">Xem thêm →</a>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card p-8 reveal delay-100">
+          <div class="flex items-start justify-between mb-6">
+            <span class="tag">SaaS</span>
+            <span style="font-size: 0.65rem; color: rgba(245,240,232,0.3);">2024</span>
+          </div>
+          <div class="mb-4" style="height: 120px; background: linear-gradient(135deg, #141820 0%, #1a2030 100%); position: relative; overflow: hidden;">
+            <div style="position:absolute; inset:0; background: radial-gradient(ellipse at 50% 50%, rgba(66,99,168,0.3), transparent 70%);"></div>
+            <div class="absolute bottom-2 left-4 font-display" style="font-size: 2rem; color: rgba(245,240,232,0.08); font-weight: 300;">DASH</div>
+          </div>
+          <h3 class="font-display mb-2" style="font-size: 1.4rem; font-weight: 300;">Analytics Dashboard</h3>
+          <p style="font-size: 0.78rem; color: rgba(245,240,232,0.5); line-height: 1.7; margin-bottom: 12px;">Dashboard phân tích dữ liệu real-time với 30+ loại biểu đồ tương tác.</p>
+          <div class="flex gap-2">
+            <span class="tag">Vue</span>
+            <span class="tag">D3.js</span>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card p-8 reveal delay-200">
+          <div class="flex items-start justify-between mb-6">
+            <span class="tag">Mobile App</span>
+            <span style="font-size: 0.65rem; color: rgba(245,240,232,0.3);">2023</span>
+          </div>
+          <div class="mb-4" style="height: 120px; background: linear-gradient(135deg, #161810 0%, #242810 100%); position: relative; overflow: hidden;">
+            <div style="position:absolute; inset:0; background: radial-gradient(ellipse at 50% 50%, rgba(120,168,66,0.2), transparent 70%);"></div>
+            <div class="absolute bottom-2 left-4 font-display" style="font-size: 2rem; color: rgba(245,240,232,0.08); font-weight: 300;">GROW</div>
+          </div>
+          <h3 class="font-display mb-2" style="font-size: 1.4rem; font-weight: 300;">FitLife Mobile</h3>
+          <p style="font-size: 0.78rem; color: rgba(245,240,232,0.5); line-height: 1.7; margin-bottom: 12px;">Ứng dụng sức khỏe với 50,000+ người dùng hằng ngày, tích hợp AI coach cá nhân.</p>
+          <div class="flex gap-2">
+            <span class="tag">React Native</span>
+            <span class="tag">ML</span>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="project-card p-8 reveal delay-300">
+          <div class="flex items-start justify-between mb-6">
+            <span class="tag">Branding</span>
+            <span style="font-size: 0.65rem; color: rgba(245,240,232,0.3);">2023</span>
+          </div>
+          <div class="mb-4" style="height: 120px; background: linear-gradient(135deg, #1a1414 0%, #281a14 100%); position: relative; overflow: hidden;">
+            <div style="position:absolute; inset:0; background: radial-gradient(ellipse at 50% 50%, rgba(192,83,42,0.25), transparent 70%);"></div>
+            <div class="absolute bottom-2 left-4 font-display" style="font-size: 2rem; color: rgba(245,240,232,0.08); font-weight: 300;">MARK</div>
+          </div>
+          <h3 class="font-display mb-2" style="font-size: 1.4rem; font-weight: 300;">Brand Identity System</h3>
+          <p style="font-size: 0.78rem; color: rgba(245,240,232,0.5); line-height: 1.7; margin-bottom: 12px;">Hệ thống nhận diện thương hiệu toàn diện cho chuỗi nhà hàng cao cấp.</p>
+          <div class="flex gap-2">
+            <span class="tag">Figma</span>
+            <span class="tag">Illustrator</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills Section -->
+  <section id="skills" class="py-32 px-8 md:px-16 stripe-bg">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-20">
+
+      <!-- Left -->
+      <div>
+        <div class="flex items-center gap-4 mb-4 reveal">
+          <div class="divider"></div>
+          <span class="font-sans" style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);">Kỹ năng</span>
+        </div>
+        <h2 class="font-display mb-12 reveal delay-100" style="font-size: clamp(36px, 5vw, 60px); font-weight: 300; line-height: 1.1;">
+          Công cụ &amp;<br/><em>Chuyên môn</em>
+        </h2>
+
+        <div class="space-y-8 reveal delay-200" id="skills-list">
+          <div class="skill-item">
+            <div class="flex justify-between mb-2">
+              <span style="font-size: 0.75rem; letter-spacing: 0.08em;">React / Next.js</span>
+              <span style="font-size: 0.7rem; color: var(--gold);">95%</span>
+            </div>
+            <div style="height: 2px; background: rgba(245,240,232,0.08);">
+              <div class="skill-bar-fill" data-width="95"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="flex justify-between mb-2">
+              <span style="font-size: 0.75rem; letter-spacing: 0.08em;">Node.js / Express</span>
+              <span style="font-size: 0.7rem; color: var(--gold);">88%</span>
+            </div>
+            <div style="height: 2px; background: rgba(245,240,232,0.08);">
+              <div class="skill-bar-fill" data-width="88"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="flex justify-between mb-2">
+              <span style="font-size: 0.75rem; letter-spacing: 0.08em;">UI/UX Design (Figma)</span>
+              <span style="font-size: 0.7rem; color: var(--gold);">92%</span>
+            </div>
+            <div style="height: 2px; background: rgba(245,240,232,0.08);">
+              <div class="skill-bar-fill" data-width="92"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="flex justify-between mb-2">
+              <span style="font-size: 0.75rem; letter-spacing: 0.08em;">Python / Machine Learning</span>
+              <span style="font-size: 0.7rem; color: var(--gold);">75%</span>
+            </div>
+            <div style="height: 2px; background: rgba(245,240,232,0.08);">
+              <div class="skill-bar-fill" data-width="75"></div>
+            </div>
+          </div>
+          <div class="skill-item">
+            <div class="flex justify-between mb-2">
+              <span style="font-size: 0.75rem; letter-spacing: 0.08em;">DevOps / AWS / Docker</span>
+              <span style="font-size: 0.7rem; color: var(--gold);">80%</span>
+            </div>
+            <div style="height: 2px; background: rgba(245,240,232,0.08);">
+              <div class="skill-bar-fill" data-width="80"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Experience Timeline -->
+      <div>
+        <div class="flex items-center gap-4 mb-4 reveal">
+          <div class="divider"></div>
+          <span class="font-sans" style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);">Kinh nghiệm</span>
+        </div>
+        <h2 class="font-display mb-12 reveal delay-100" style="font-size: clamp(36px, 5vw, 60px); font-weight: 300; line-height: 1.1;">
+          Hành trình<br/><em>sự nghiệp</em>
+        </h2>
+
+        <div class="relative" style="padding-left: 24px; border-left: 1px solid rgba(201,168,76,0.2);">
+
+          <div class="mb-10 reveal" style="position: relative;">
+            <div style="position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--gold);"></div>
+            <div class="tag mb-3">2022 — Hiện tại</div>
+            <h4 class="font-sans font-semibold mb-1" style="font-size: 0.95rem;">Senior Full-Stack Developer</h4>
+            <div style="font-size: 0.75rem; color: var(--gold); margin-bottom: 6px;">TechCorp Vietnam</div>
+            <p style="font-size: 0.78rem; color: rgba(245,240,232,0.5); line-height: 1.7;">Dẫn dắt team 8 người phát triển hệ thống nền tảng SaaS cho 200+ doanh nghiệp vừa và nhỏ.</p>
+          </div>
+
+          <div class="mb-10 reveal delay-100" style="position: relative;">
+            <div style="position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--rust);"></div>
+            <div class="tag mb-3">2020 — 2022</div>
+            <h4 class="font-sans font-semibold mb-1" style="font-size: 0.95rem;">UI/UX Designer & Front-end Lead</h4>
+            <div style="font-size: 0.75rem; color: var(--gold); margin-bottom: 6px;">Digital Agency ABC</div>
+            <p style="font-size: 0.78rem; color: rgba(245,240,232,0.5); line-height: 1.7;">Thiết kế và phát triển 30+ website cho khách hàng trong và ngoài nước.</p>
+          </div>
+
+          <div class="reveal delay-200" style="position: relative;">
+            <div style="position: absolute; left: -29px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(201,168,76,0.4);"></div>
+            <div class="tag mb-3">2017 — 2020</div>
+            <h4 class="font-sans font-semibold mb-1" style="font-size: 0.95rem;">Junior Developer</h4>
+            <div style="font-size: 0.75rem; color: var(--gold); margin-bottom: 6px;">Startup XYZ</div>
+            <p style="font-size: 0.78rem; color: rgba(245,240,232,0.5); line-height: 1.7;">Xây dựng MVP cho 3 sản phẩm, trong đó 1 sản phẩm đã được mua lại.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="py-32 px-8 md:px-16 overflow-hidden">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex items-center gap-4 mb-16 reveal">
+        <div class="divider"></div>
+        <span class="font-sans" style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);">Nhận xét</span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="project-card p-8 reveal">
+          <div class="font-display text-5xl mb-4" style="color: var(--gold); line-height: 1;">"</div>
+          <p class="font-display mb-6" style="font-size: 1.2rem; font-weight: 300; line-height: 1.7; color: rgba(245,240,232,0.8);">An không chỉ là một developer xuất sắc — anh ấy hiểu được tầm nhìn kinh doanh và biến nó thành sản phẩm thực sự tuyệt vời.</p>
+          <div class="flex items-center gap-3">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--rust), var(--gold));"></div>
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 500;">Trần Minh Khôi</div>
+              <div style="font-size: 0.65rem; color: rgba(245,240,232,0.4);">CEO, TechCorp Vietnam</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-card p-8 reveal delay-200">
+          <div class="font-display text-5xl mb-4" style="color: var(--gold); line-height: 1;">"</div>
+          <p class="font-display mb-6" style="font-size: 1.2rem; font-weight: 300; line-height: 1.7; color: rgba(245,240,232,0.8);">Website mà An thiết kế giúp tỷ lệ chuyển đổi của chúng tôi tăng 340% chỉ trong 3 tháng đầu.</p>
+          <div class="flex items-center gap-3">
+            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3a5fcc, var(--gold));"></div>
+            <div>
+              <div style="font-size: 0.8rem; font-weight: 500;">Lê Bảo Ngọc</div>
+              <div style="font-size: 0.65rem; color: rgba(245,240,232,0.4);">CMO, LuxeMarket</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="py-32 px-8 md:px-16 relative overflow-hidden">
+    <!-- Background accent -->
+    <div class="absolute" style="right: -100px; top: 50%; transform: translateY(-50%); width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.04), transparent 70%); pointer-events: none;"></div>
+
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-20">
+      <div>
+        <div class="flex items-center gap-4 mb-4 reveal">
+          <div class="divider"></div>
+          <span class="font-sans" style="font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold);">Liên hệ</span>
+        </div>
+        <h2 class="font-display mb-6 reveal delay-100" style="font-size: clamp(36px, 5vw, 60px); font-weight: 300; line-height: 1.1;">
+          Hãy bắt đầu<br/>
+          <em>một dự án mới</em>
+        </h2>
+        <p class="reveal delay-200" style="font-size: 0.85rem; line-height: 1.9; color: rgba(245,240,232,0.5); max-width: 380px;">Tôi luôn sẵn sàng nhận những dự án thú vị. Hãy cho tôi biết bạn đang cần gì.</p>
+
+        <div class="mt-12 space-y-6 reveal delay-300">
+          <div>
+            <div style="font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(245,240,232,0.3); margin-bottom: 4px;">Email</div>
+            <a href="mailto:hello@nguyenvan.an" class="hover-line" style="font-size: 0.9rem; color: var(--cream);">hello@nguyenvan.an</a>
+          </div>
+          <div>
+            <div style="font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(245,240,232,0.3); margin-bottom: 4px;">Điện thoại</div>
+            <a href="tel:+84901234567" class="hover-line" style="font-size: 0.9rem; color: var(--cream);">+84 90 123 4567</a>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-6 mt-10 reveal delay-400">
+          <a href="#" class="nav-link hover-line">LinkedIn</a>
+          <a href="#" class="nav-link hover-line">GitHub</a>
+          <a href="#" class="nav-link hover-line">Dribbble</a>
+          <a href="#" class="nav-link hover-line">Twitter</a>
+        </div>
+      </div>
+
+      <!-- Contact form -->
+      <div class="reveal delay-200">
+        <div class="space-y-8">
+          <div>
+            <input type="text" class="contact-input" placeholder="Tên của bạn" />
+          </div>
+          <div>
+            <input type="email" class="contact-input" placeholder="Email" />
+          </div>
+          <div>
+            <input type="text" class="contact-input" placeholder="Chủ đề dự án" />
+          </div>
+          <div>
+            <textarea class="contact-input" rows="4" placeholder="Mô tả ngắn về dự án của bạn..." style="resize: none;"></textarea>
+          </div>
+          <button onclick="this.textContent='Đã gửi ✓'; this.style.background='var(--gold)'; this.style.color='var(--ink)';"
+            class="font-sans w-full py-4 mt-2 transition-all duration-300"
+            style="border: 1px solid rgba(201,168,76,0.4); color: var(--cream); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; background: transparent; cursor: none;">
+            Gửi tin nhắn →
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-12 px-8 md:px-16" style="border-top: 1px solid rgba(245,240,232,0.06);">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="font-display text-xl" style="color: var(--gold);">Nguyễn Văn An.</div>
+      <div style="font-size: 0.65rem; color: rgba(245,240,232,0.3); letter-spacing: 0.1em;">© 2024 — Thiết kế &amp; Phát triển bởi Nguyễn Văn An</div>
+      <a href="#" style="font-size: 0.65rem; color: rgba(245,240,232,0.3); letter-spacing: 0.1em; text-transform: uppercase;">Quay lên đầu ↑</a>
+    </div>
+  </footer>
+
+  <script>
+    // Cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 5}px, ${my - 5}px)`;
+    });
+
+    function animateRing() {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    revealEls.forEach(el => observer.observe(el));
+
+    // Skill bars
+    const skillObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const bars = entry.target.querySelectorAll('.skill-bar-fill');
+          bars.forEach((bar, i) => {
+            setTimeout(() => {
+              bar.style.width = bar.dataset.width + '%';
+            }, i * 150);
+          });
+          skillObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    const skillList = document.getElementById('skills-list');
+    if (skillList) skillObserver.observe(skillList);
+
+    // Smooth nav scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
